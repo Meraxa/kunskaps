@@ -1,0 +1,29 @@
+services:
+  kunskaps-mongodb-dataset:
+    image: mongo:8.0.3
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_DATASET_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_DATASET_PASSWORD}
+    ports:
+      - "27017:27017"
+
+  kunskaps-mongoexpress-dataset:
+    image: mongo-express:1.0.2-20
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGODB_DATASET_USERNAME}:${MONGODB_DATASET_PASSWORD}@kunskaps-mongodb-dataset:27017/
+
+  kunskaps-backend-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    environment:
+      MONGODB_DATASET_URL: mongodb://${MONGODB_DATASET_USERNAME}:${MONGODB_DATASET_PASSWORD}@kunskaps-mongodb-dataset:27017/
